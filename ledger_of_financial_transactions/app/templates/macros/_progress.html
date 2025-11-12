@@ -1,28 +1,146 @@
-{% macro progress_bar(value, total, color='primary', height=8, show_percentage=true) %}
-    {% set percentage = (value / total * 100) if total > 0 else 0 %}
-    <div class="progress mb-1" style="height: {{ height }}px;">
-        <div class="progress-bar bg-{{ color }}" 
+{##
+Progress Bar Component
+
+This file contains reusable progress bar components for the application.
+
+Macros:
+    - progress_bar: A flexible progress bar component
+    - stat_card: A card component for displaying statistics with progress
+
+Dependencies:
+    - Bootstrap 5.x
+    - Font Awesome (optional, for icons)
+#}
+
+{% macro progress_bar(
+    value,
+    total,
+    color='primary',
+    height=8,
+    show_percentage=true,
+    striped=false,
+    animated=false,
+    id=none,
+    extra_classes=''
+) %}
+    {#-
+    Renders a progress bar component.
+    
+    Args:
+        value (float): Current value of the progress
+        total (float): Maximum value (100%)
+        color (str): Bootstrap color class (e.g., 'primary', 'success')
+        height (int): Height of the progress bar in pixels
+        show_percentage (bool): Whether to show the percentage text
+        striped (bool): Whether to add striped effect
+        animated (bool): Whether to animate the progress bar (requires striped=true)
+        id (str, optional): Optional ID for the progress bar
+        extra_classes (str): Additional CSS classes
+    #}
+    {%- set percentage = (value / total * 100) if total > 0 else 0 -%}
+    {%- set percentage_rounded = "%0.1f"|format(percentage) -%}
+    {%- set progress_id = id or 'progress-' + range(1, 1000)|random|string -%}
+    
+    <div class="progress mb-1 {{ extra_classes }}" 
+         style="height: {{ height }}px;"
+         {% if id %}id="{{ progress_id }}"{% endif %}>
+        <div class="progress-bar bg-{{ color }} {{ 'progress-bar-striped' if striped }} {{ 'progress-bar-animated' if animated and striped }}" 
              role="progressbar" 
              style="width: {{ percentage }}%"
-             aria-valuenow="{{ percentage }}" 
+             aria-valuenow="{{ percentage_rounded }}" 
              aria-valuemin="0" 
-             aria-valuemax="100">
-            {% if show_percentage %}{{ "%0.1f"|format(percentage) }}%{% endif %}
+             aria-valuemax="100"
+             aria-label="{{ title }}">
+            {%- if show_percentage -%}
+                <span class="visually-hidden">Progress: </span>{{ percentage_rounded }}%
+            {%- endif -%}
         </div>
     </div>
 {% endmacro %}
 
-{% macro stat_card(title, value, total, color='primary', show_count=false, count=0) %}
-    <div class="mb-3">
-        <div class="d-flex justify-content-between mb-1">
-            <span>{{ title }}</span>
-            <span class="fw-bold">{{ "%0.2f"|format(value) }} $</span>
+{% macro stat_card(
+    title,
+    value,
+    total,
+    color='primary',
+    show_count=false,
+    count=0,
+    icon_class=none,
+    show_currency=true,
+    extra_classes=''
+) %}
+    {#-
+    Renders a statistic card with a progress bar.
+    
+    Args:
+        title (str): Title of the stat card
+        value (float): Current value
+        total (float): Maximum value (100%)
+        color (str): Bootstrap color class
+        show_count (bool): Whether to show the transaction count
+        count (int): Number of items/transactions
+        icon_class (str, optional): Optional icon class (e.g., 'bi bi-graph-up')
+        show_currency (bool): Whether to show the currency symbol
+        extra_classes (str): Additional CSS classes
+    #}
+    <div class="stat-card mb-3 {{ extra_classes }}">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="d-flex align-items-center">
+                {% if icon_class %}
+                    <i class="{{ icon_class }} me-1" aria-hidden="true"></i>
+                {% endif %}
+                {{ title }}
+            </span>
+            <span class="fw-bold">
+                {{ "%0.2f"|format(value) }}{% if show_currency %} ${% endif %}
+            </span>
         </div>
-        {{ progress_bar(value, total, color, 10, true) }}
+        
+        {{ progress_bar(
+            value=value,
+            total=total,
+            color=color,
+            height=10,
+            show_percentage=true,
+            extra_classes='mb-1'
+        ) }}
+        
         {% if show_count %}
-            <small class="text-muted">
+            <small class="text-muted d-block">
                 {{ count }} transaction{{ 's' if count != 1 else '' }}
             </small>
         {% endif %}
+    </div>
+    
+    {# Add some basic styling if needed #}
+    <style>
+        .stat-card .progress {
+            transition: width 0.6s ease;
+        }
+        .stat-card .progress-bar {
+            transition: width 0.6s ease;
+        }
+    </style>
+{% endmacro %}
+
+{% macro stat_card_simple(title, value, icon_class=none, color='primary', extra_classes='') %}
+    {#-
+    A simplified version of stat_card without progress bar.
+    
+    Args:
+        title (str): Title of the stat card
+        value (str|int|float): Value to display
+        icon_class (str, optional): Optional icon class
+        color (str): Text color class
+        extra_classes (str): Additional CSS classes
+    #}
+    <div class="stat-card-simple mb-3 {{ extra_classes }}">
+        <div class="text-muted small">{{ title }}</div>
+        <div class="d-flex align-items-center">
+            {% if icon_class %}
+                <i class="{{ icon_class }} me-2 text-{{ color }}" aria-hidden="true"></i>
+            {% endif %}
+            <span class="h5 mb-0 text-{{ color }}">{{ value }}</span>
+        </div>
     </div>
 {% endmacro %}
