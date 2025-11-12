@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Financial Ledger{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center py-5 bg-light rounded-3">
+    <h1 class="display-4">Welcome to Financial Ledger</h1>
+    <p class="lead">Track your expenses and manage your finances with ease.</p>
+    <hr class="my-4">
+    <p>Get started by creating an account or logging in to access your financial dashboard.</p>
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg px-4 gap-3">Sign Up</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-wallet2 text-primary" style="font-size: 2.5rem;"></i>
+                <h3 class="h4 mt-3">Track Expenses</h3>
+                <p class="card-text">Easily record and categorize your daily expenses to understand where your money goes.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up text-success" style="font-size: 2.5rem;"></i>
+                <h3 class="h4 mt-3">Visual Reports</h3>
+                <p class="card-text">Get insights into your spending habits with beautiful charts and reports.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-shield-lock text-info" style="font-size: 2.5rem;"></i>
+                <h3 class="h4 mt-3">Secure & Private</h3>
+                <p class="card-text">Your financial data is encrypted and only accessible by you.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

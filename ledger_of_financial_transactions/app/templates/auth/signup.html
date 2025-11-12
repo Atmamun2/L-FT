@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Financial Ledger{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h2>Create an Account</h2>
+                    <p class="text-muted">Join us to start managing your finances</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('auth.signup') }}" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                       id="first_name" name="first_name" placeholder="John" 
+                                       value="{{ form.first_name.data or '' }}" required>
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.first_name.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                       id="last_name" name="last_name" placeholder="Doe"
+                                       value="{{ form.last_name.data or '' }}">
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.last_name.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                   id="username" name="username" placeholder="johndoe" 
+                                   value="{{ form.username.data or '' }}" required>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.username.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-text">This will be your unique identifier.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                   id="email" name="email" placeholder="john@example.com" 
+                                   value="{{ form.email.data or '' }}" required>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.email.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                                   id="password" name="password" placeholder="••••••••" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-text">Use 8 or more characters with a mix of letters, numbers & symbols.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                            <input type="password" class="form-control {% if form.confirm_password.errors %}is-invalid{% endif %}" 
+                                   id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirm_password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.confirm_password.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input {% if form.terms.errors %}is-invalid{% endif %}" 
+                               id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="{{ url_for('main.terms') }}">Terms of Service</a> and 
+                            <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
+                        </label>
+                        {% if form.terms.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.terms.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">Already have an account? 
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Sign in</a>
+                    </p>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <div class="position-relative">
+                        <hr>
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted">or sign up with</span>
+                    </div>
+                    <div class="mt-4">
+                        <a href="#" class="btn btn-outline-dark me-2">
+                            <i class="bi bi-google"></i> Google
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="bi bi-facebook"></i> Facebook
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle password visibility
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const passwordInput = document.getElementById(targetId);
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+});
+
+// Password strength indicator
+const passwordInput = document.getElementById('password');
+const passwordStrength = document.createElement('div');
+passwordStrength.className = 'mt-2';
+passwordInput.parentNode.insertBefore(passwordStrength, passwordInput.nextSibling.nextSibling);
+
+passwordInput.addEventListener('input', function() {
+    const password = this.value;
+    let strength = 0;
+    
+    // Check password strength
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]+/)) strength++;
+    if (password.match(/[A-Z]+/)) strength++;
+    if (password.match(/[0-9]+/)) strength++;
+    if (password.match(/[!@#$%^&*(),.?":{}|<>]+/)) strength++;
+    
+    // Update strength indicator
+    let strengthText = '';
+    let strengthClass = '';
+    
+    switch(strength) {
+        case 0:
+        case 1:
+            strengthText = 'Very Weak';
+            strengthClass = 'text-danger';
+            break;
+        case 2:
+            strengthText = 'Weak';
+            strengthClass = 'text-warning';
+            break;
+        case 3:
+            strengthText = 'Good';
+            strengthClass = 'text-info';
+            break;
+        case 4:
+            strengthText = 'Strong';
+            strengthClass = 'text-primary';
+            break;
+        case 5:
+            strengthText = 'Very Strong';
+            strengthClass = 'text-success';
+            break;
+    }
+    
+    passwordStrength.innerHTML = `
+        <div class="progress" style="height: 5px;">
+            <div class="progress-bar ${strengthClass}" role="progressbar" 
+                 style="width: ${strength * 20}%" 
+                 aria-valuenow="${strength * 20}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+            </div>
+        </div>
+        <small class="d-block text-center ${strengthClass}">${password ? strengthText : ''}</small>
+    `;
+});
+</script>
+{% endblock %}
