@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from app import db
 from app.models.transaction import Transaction
-from app.models.house import House
+from app.forms.transaction import TransactionForm, TransactionFilterForm
 
 transactions_bp = Blueprint('transactions', __name__)
 
@@ -15,107 +15,114 @@ def list_transactions():
     
     # Get filter parameters
     category = request.args.get('category')
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
+    transaction_type = request.args.get('transaction_type')
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
     
     # Base query
     query = Transaction.query.filter_by(user_id=current_user.id)
     
     # Apply filters
-    if category and category != 'all':
+    if category and category != '':
         query = query.filter_by(category=category)
     
-    if start_date:
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        query = query.filter(Transaction.date >= start_date)
+    if transaction_type and transaction_type != '':
+        if transaction_type == 'income':
+            query = query.filter(Transaction.amount > 0)
+        else:
+            query = query.filter(Transaction.amount < 0)
     
-    if end_date:
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        query = query.filter(Transaction.date <= end_date)
+    if date_from:
+        date_from = datetime.strptime(date_from, '%Y-%m-%d')
+        query = query.filter(Transaction.date >= date_from)
     
-    # Execute query with pagination
-    transactions = query.order_by(Transaction.date.desc()).paginate(page=page, per_page=per_page)
+    if date_to:
+        date_to = datetime.strptime(date_to, '%Y-%m-%d')
+        query = query.filter(Transaction.date <= date_to)
     
-    # Get unique categories for filter dropdown
-    categories = db.session.query(Transaction.category).distinct().all()
-    categories = [cat[0] for cat in categories]
+    # Order by date (newest first)
+    query = query.order_by(Transaction.date.desc())
+    
+    # Paginate
+    transactions = query.paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    # Create filter form
+    filter_form = TransactionFilterForm(data=request.args)
     
     return render_template('transactions/list.html', 
-                         transactions=transactions,
-                         categories=categories,
-                         current_filters={
-                             'category': category,
-                             'start_date': start_date.strftime('%Y-%m-%d') if start_date else '',
-                             'end_date': end_date.strftime('%Y-%m-%d') if end_date else ''
-                         })
+                         transactions=transactions, 
+                         filter_form=filter_form)
 
 @transactions_bp.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_transaction():
-    if request.method == 'POST':
-        try:
-            amount = float(request.form.get('amount'))
-            description = request.form.get('description', '').strip()
-            category = request.form.get('category')
-            date = datetime.strptime(request.form.get('date'), '%Y-%m-%d')
-            
-            transaction = Transaction(
-                amount=amount,
-                description=description,
-                category=category,
-                date=date,
-                user_id=current_user.id,
-                house_id=current_user.house_id
-            )
-            
-            db.session.add(transaction)
-            db.session.commit()
-            
-            flash('Transaction added successfully!', 'success')
-            return redirect(url_for('transactions.list_transactions'))
-            
-        except ValueError as e:
-            db.session.rollback()
-            flash('Invalid input. Please check your entries.', 'error')
+    form = TransactionForm()
     
-    return render_template('transactions/add.html')
+    if form.validate_on_submit():
+        # Convert amount based on transaction type
+        amount = form.amount.data
+        if form.transaction_type.data == 'expense':
+            amount = -abs(amount)
+        
+        transaction = Transaction(
+            amount=amount,
+            description=form.description.data,
+            category=form.category.data,
+            date=form.date.data,
+            user_id=current_user.id
+        )
+        
+        db.session.add(transaction)
+        db.session.commit()
+        
+        flash('Transaction added successfully!', 'success')
+        return redirect(url_for('transactions.list_transactions'))
+    
+    # Set default date to today
+    if not form.date.data:
+        form.date.data = datetime.utcnow().date()
+    
+    return render_template('transactions/add.html', form=form)
 
-@transactions_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
+@transactions_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_transaction(id):
-    transaction = Transaction.query.get_or_404(id)
+    transaction = Transaction.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
-    # Ensure the user owns this transaction
-    if transaction.user_id != current_user.id and not current_user.is_admin:
-        flash('You do not have permission to edit this transaction.', 'error')
+    form = TransactionForm(obj=transaction)
+    
+    # Set transaction type based on amount
+    if transaction.amount < 0:
+        form.transaction_type.data = 'expense'
+        form.amount.data = abs(transaction.amount)
+    else:
+        form.transaction_type.data = 'income'
+        form.amount.data = transaction.amount
+    
+    if form.validate_on_submit():
+        # Convert amount based on transaction type
+        amount = form.amount.data
+        if form.transaction_type.data == 'expense':
+            amount = -abs(amount)
+        
+        transaction.amount = amount
+        transaction.description = form.description.data
+        transaction.category = form.category.data
+        transaction.date = form.date.data
+        
+        db.session.commit()
+        
+        flash('Transaction updated successfully!', 'success')
         return redirect(url_for('transactions.list_transactions'))
     
-    if request.method == 'POST':
-        try:
-            transaction.amount = float(request.form.get('amount'))
-            transaction.description = request.form.get('description', '').strip()
-            transaction.category = request.form.get('category')
-            transaction.date = datetime.strptime(request.form.get('date'), '%Y-%m-%d')
-            
-            db.session.commit()
-            flash('Transaction updated successfully!', 'success')
-            return redirect(url_for('transactions.list_transactions'))
-            
-        except ValueError as e:
-            db.session.rollback()
-            flash('Invalid input. Please check your entries.', 'error')
-    
-    return render_template('transactions/edit.html', transaction=transaction)
+    return render_template('transactions/edit.html', form=form, transaction=transaction)
 
-@transactions_bp.route('/<int:id>/delete', methods=['POST'])
+@transactions_bp.route('/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_transaction(id):
-    transaction = Transaction.query.get_or_404(id)
-    
-    # Ensure the user owns this transaction or is an admin
-    if transaction.user_id != current_user.id and not current_user.is_admin:
-        flash('You do not have permission to delete this transaction.', 'error')
-        return redirect(url_for('transactions.list_transactions'))
+    transaction = Transaction.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
     db.session.delete(transaction)
     db.session.commit()
@@ -123,16 +130,8 @@ def delete_transaction(id):
     flash('Transaction deleted successfully!', 'success')
     return redirect(url_for('transactions.list_transactions'))
 
-@transactions_bp.route('/categories')
+@transactions_bp.route('/view/<int:id>')
 @login_required
-def categories():
-    # Get category totals for the current user
-    categories = db.session.query(
-        Transaction.category,
-        db.func.sum(Transaction.amount).label('total')
-    ).filter_by(user_id=current_user.id)\
-     .group_by(Transaction.category)\
-     .order_by(db.desc('total'))\
-     .all()
-    
-    return render_template('transactions/categories.html', categories=categories)
+def view_transaction(id):
+    transaction = Transaction.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+    return render_template('transactions/view.html', transaction=transaction)

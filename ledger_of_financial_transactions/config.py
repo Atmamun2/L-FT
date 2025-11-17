@@ -71,10 +71,32 @@ class ProductionConfig(Config):
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
 
+class PythonAnywhereConfig(ProductionConfig):
+    """PythonAnywhere-specific configuration."""
+    
+    @classmethod
+    def init_app(cls, app):
+        """PythonAnywhere-specific initialization."""
+        ProductionConfig.init_app(app)
+        
+        # PythonAnywhere specific settings
+        import logging
+        from logging import StreamHandler, Formatter
+        
+        # Set up logging for PythonAnywhere
+        file_handler = StreamHandler()
+        file_handler.setLevel(logging.INFO)
+        formatter = Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+        file_handler.setFormatter(formatter)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('Financial Ledger startup')
+
 # Configuration dictionary
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
+    'pythonanywhere': PythonAnywhereConfig,
     'default': DevelopmentConfig
 }

@@ -29,15 +29,30 @@ def register():
         
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Check if username already exists
+        if User.query.filter_by(username=form.username.data).first():
+            flash('Username already exists. Please choose a different one.', 'danger')
+            return render_template('auth/signup.html', form=form)
+            
+        # Check if email already exists
+        if User.query.filter_by(email=form.email.data).first():
+            flash('Email already registered. Please use a different email.', 'danger')
+            return render_template('auth/signup.html', form=form)
+        
         user = User(
             username=form.username.data,
             email=form.email.data,
-            password=form.password.data
+            first_name=form.first_name.data,
+            last_name=form.last_name.data
         )
+        user.set_password(form.password.data)
+        
         db.session.add(user)
         db.session.commit()
-        flash('Registration successful! Please log in.', 'success')
+        
+        flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('auth.login'))
+        
     return render_template('auth/signup.html', form=form)
 
 @auth_bp.route('/logout')

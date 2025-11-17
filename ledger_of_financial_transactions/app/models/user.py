@@ -18,7 +18,6 @@ class User(UserMixin, db.Model):
     
     # Relationships
     transactions = db.relationship('Transaction', backref='user', lazy=True)
-    house_id = db.Column(db.Integer, db.ForeignKey('houses.id'))
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -14,7 +14,6 @@ class Transaction(db.Model):
     
     # Foreign Keys
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    house_id = db.Column(db.Integer, db.ForeignKey('houses.id'))
     
     def to_dict(self):
         return {
@@ -29,4 +28,4 @@ class Transaction(db.Model):
         }
     
     def __repr__(self):
-        return f'<Transaction {self.amount} - {self.category}>'
+        return f'<Transaction {self.id}: {self.category} - ${self.amount}>'

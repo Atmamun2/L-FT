@@ -18,6 +18,14 @@ class RegistrationForm(FlaskForm):
         DataRequired(),
         Email()
     ])
+    first_name = StringField('First Name', validators=[
+        DataRequired(),
+        Length(min=2, max=50)
+    ])
+    last_name = StringField('Last Name', validators=[
+        DataRequired(),
+        Length(min=2, max=50)
+    ])
     password = PasswordField('Password', validators=[
         DataRequired(),
         Length(min=6, message='Password must be at least 6 characters long')

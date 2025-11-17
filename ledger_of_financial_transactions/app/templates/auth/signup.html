@@ -20,6 +20,42 @@
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label fw-semibold">First Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-person-badge text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                       id="first_name" name="first_name" placeholder="Enter your first name" 
+                                       value="{{ form.first_name.data or '' }}" required>
+                            </div>
+                            {% if form.first_name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.first_name.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label fw-semibold">Last Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-person-badge text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                       id="last_name" name="last_name" placeholder="Enter your last name" 
+                                       value="{{ form.last_name.data or '' }}" required>
+                            </div>
+                            {% if form.last_name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.last_name.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label for="username" class="form-label fw-semibold">Username</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">
@@ -28,12 +64,12 @@
                                 <input type="text" class="form-control border-start-0 {% if form.username.errors %}is-invalid{% endif %}" 
                                        id="username" name="username" placeholder="Choose a username" 
                                        value="{{ form.username.data or '' }}" required>
-                                {% if form.username.errors %}
-                                    <div class="invalid-feedback">
-                                        {{ form.username.errors[0] }}
-                                    </div>
-                                {% endif %}
                             </div>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.username.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <div class="col-md-6 mb-3">
@@ -45,12 +81,12 @@
                                 <input type="email" class="form-control border-start-0 {% if form.email.errors %}is-invalid{% endif %}" 
                                        id="email" name="email" placeholder="your@email.com" 
                                        value="{{ form.email.data or '' }}" required>
-                                {% if form.email.errors %}
-                                    <div class="invalid-feedback">
-                                        {{ form.email.errors[0] }}
-                                    </div>
-                                {% endif %}
                             </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.email.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     
@@ -66,16 +102,36 @@
                                 <button class="btn btn-outline-secondary border-start-0" type="button" id="togglePassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                {% if form.password.errors %}
-                                    <div class="invalid-feedback">
-                                        {{ form.password.errors[0] }}
-                                    </div>
-                                {% endif %}
-                        {% if form.terms.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.terms.errors[0] }}
                             </div>
-                        {% endif %}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-lock-fill text-muted"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0 {% if form.confirm_password.errors %}is-invalid{% endif %}" 
+                                       id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                                <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleConfirmPassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.confirm_password.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div id="passwordStrength" class="mt-2"></div>
                     </div>
                     
                     <div class="d-grid gap-2">
@@ -113,30 +169,40 @@
 
 {% block extra_js %}
 <script>
-// Toggle password visibility
-document.querySelectorAll('.toggle-password').forEach(button => {
-    button.addEventListener('click', function() {
-        const targetId = this.getAttribute('data-target');
-        const passwordInput = document.getElementById(targetId);
-        const icon = this.querySelector('i');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        }
-    });
+// Toggle password visibility for both password fields
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const icon = this.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+});
+
+document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const icon = this.querySelector('i');
+    
+    if (confirmPasswordInput.type === 'password') {
+        confirmPasswordInput.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        confirmPasswordInput.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
 });
 
 // Password strength indicator
 const passwordInput = document.getElementById('password');
-const passwordStrength = document.createElement('div');
-passwordStrength.className = 'mt-2';
-passwordInput.parentNode.insertBefore(passwordStrength, passwordInput.nextSibling.nextSibling);
+const passwordStrengthDiv = document.getElementById('passwordStrength');
 
 passwordInput.addEventListener('input', function() {
     const password = this.value;
@@ -157,37 +223,64 @@ passwordInput.addEventListener('input', function() {
         case 0:
         case 1:
             strengthText = 'Very Weak';
-            strengthClass = 'text-danger';
+            strengthClass = 'bg-danger';
             break;
         case 2:
             strengthText = 'Weak';
-            strengthClass = 'text-warning';
+            strengthClass = 'bg-warning';
             break;
         case 3:
-            strengthText = 'Good';
-            strengthClass = 'text-info';
+            strengthText = 'Fair';
+            strengthClass = 'bg-info';
             break;
         case 4:
-            strengthText = 'Strong';
-            strengthClass = 'text-primary';
+            strengthText = 'Good';
+            strengthClass = 'bg-primary';
             break;
         case 5:
             strengthText = 'Very Strong';
-            strengthClass = 'text-success';
+            strengthClass = 'bg-success';
             break;
     }
     
-    passwordStrength.innerHTML = `
-        <div class="progress" style="height: 5px;">
-            <div class="progress-bar ${strengthClass}" role="progressbar" 
-                 style="width: ${strength * 20}%" 
-                 aria-valuenow="${strength * 20}" 
-                 aria-valuemin="0" 
-                 aria-valuemax="100">
+    if (password) {
+        passwordStrengthDiv.innerHTML = `
+            <div class="progress mb-2" style="height: 8px;">
+                <div class="progress-bar ${strengthClass}" role="progressbar" 
+                     style="width: ${strength * 20}%" 
+                     aria-valuenow="${strength * 20}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                </div>
             </div>
-        </div>
-        <small class="d-block text-center ${strengthClass}">${password ? strengthText : ''}</small>
-    `;
+            <small class="text-muted">Password strength: <span class="${strengthClass.replace('bg-', 'text-')}">${strengthText}</span></small>
+        `;
+    } else {
+        passwordStrengthDiv.innerHTML = '';
+    }
 });
+
+// Real-time password confirmation validation
+const confirmPasswordInput = document.getElementById('confirm_password');
+
+function validatePasswordMatch() {
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    
+    if (confirmPassword && password !== confirmPassword) {
+        confirmPasswordInput.setCustomValidity('Passwords do not match');
+        confirmPasswordInput.classList.add('is-invalid');
+    } else if (confirmPassword && password === confirmPassword) {
+        confirmPasswordInput.setCustomValidity('');
+        confirmPasswordInput.classList.remove('is-invalid');
+        confirmPasswordInput.classList.add('is-valid');
+    } else {
+        confirmPasswordInput.setCustomValidity('');
+        confirmPasswordInput.classList.remove('is-invalid', 'is-valid');
+    }
+}
+
+passwordInput.addEventListener('input', validatePasswordMatch);
+confirmPasswordInput.addEventListener('input', validatePasswordMatch);
 </script>
 {% endblock %}
