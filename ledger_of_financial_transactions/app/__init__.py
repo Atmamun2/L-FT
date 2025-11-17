@@ -9,14 +9,8 @@ def create_app(config_name='default'):
     config[config_name].init_app(app)
 
     # Initialize extensions
-    db.init_app(app)
-    login_manager.init_app(app)
-    mail.init_app(app)
-    migrate.init_app(app, db)
-    csrf.init_app(app)
-    limiter.init_app(app)
-    cache.init_app(app)
-    babel.init_app(app)
+    from .extensions import init_extensions
+    init_extensions(app)
 
     # Initialize logger
     from .utils.logger import init_app as init_logger
