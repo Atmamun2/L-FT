@@ -2,20 +2,19 @@ import os
 import sys
 from pathlib import Path
 
+# Get the directory containing the current script
+current_dir = Path(__file__).parent
+
 # Add the project directory to the Python path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
 
+# Load environment variables
 from dotenv import load_dotenv
-
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(dotenv_path):
+dotenv_path = current_dir / '.env'
+if dotenv_path.exists():
     load_dotenv(dotenv_path)
 
+# Import and create the Flask app
 from app import create_app
-
-config_name = os.getenv('FLASK_CONFIG', 'development')
-application = create_app(config_name)
-
-if __name__ == "__main__":
-    application.run(debug=True)
+application = create_app(os.getenv('FLASK_CONFIG', 'default'))

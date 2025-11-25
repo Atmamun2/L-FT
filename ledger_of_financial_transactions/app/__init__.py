@@ -1,12 +1,23 @@
 from flask import Flask, render_template
-from config import config
+import os
+from pathlib import Path
 from .extensions import db, login_manager, mail, migrate, csrf, limiter, cache, babel
 
 def create_app(config_name='default'):
     """Application factory function."""
     app = Flask(__name__)
-    app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
+    
+    # Import config based on environment
+    if config_name == 'production':
+        from config import ProductionConfig as Config
+    elif config_name == 'testing':
+        from config import TestingConfig as Config
+    elif config_name == 'pythonanywhere':
+        from config import PythonAnywhereConfig as Config
+    else:
+        from config import DevelopmentConfig as Config
+    
+    app.config.from_object(Config)
 
     # Initialize extensions
     from .extensions import init_extensions

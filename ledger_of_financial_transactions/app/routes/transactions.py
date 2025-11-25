@@ -90,33 +90,39 @@ def add_transaction():
 @login_required
 def edit_transaction(id):
     transaction = Transaction.query.filter_by(id=id, user_id=current_user.id).first_or_404()
-    
-    form = TransactionForm(obj=transaction)
-    
-    # Set transaction type based on amount
-    if transaction.amount < 0:
-        form.transaction_type.data = 'expense'
-        form.amount.data = abs(transaction.amount)
-    else:
-        form.transaction_type.data = 'income'
-        form.amount.data = transaction.amount
-    
+
+    form = TransactionForm()
+
+    # Populate form with existing data
+    if request.method == 'GET':
+        form.description.data = transaction.description
+        form.category.data = transaction.category
+        form.date.data = transaction.date.date() if transaction.date else None
+
+        # Set transaction type and amount based on amount sign
+        if transaction.amount < 0:
+            form.transaction_type.data = 'expense'
+            form.amount.data = abs(transaction.amount)
+        else:
+            form.transaction_type.data = 'income'
+            form.amount.data = transaction.amount
+
     if form.validate_on_submit():
         # Convert amount based on transaction type
         amount = form.amount.data
         if form.transaction_type.data == 'expense':
             amount = -abs(amount)
-        
+
         transaction.amount = amount
         transaction.description = form.description.data
         transaction.category = form.category.data
         transaction.date = form.date.data
-        
+
         db.session.commit()
-        
+
         flash('Transaction updated successfully!', 'success')
         return redirect(url_for('transactions.list_transactions'))
-    
+
     return render_template('transactions/edit.html', form=form, transaction=transaction)
 
 @transactions_bp.route('/delete/<int:id>', methods=['POST'])
