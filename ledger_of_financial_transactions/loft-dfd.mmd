@@ -1,0 +1,343 @@
+graph TB
+    %% External Entities
+    Client[Client/User]
+    BankAPI[Financial Bank API]
+    
+    %% Data Stores
+    DS1[(SQLite: transactions table)]
+    DS2[(SQLite: users table)]
+    DS3[(SQLite: audit_log table)]
+    DS4[(SQLite: financial_positions table)]
+    DS5[(Session Store)]
+    
+    %% ============ CREATE OPERATION ============
+    subgraph CREATE["Process 1: CREATE Transaction"]
+        C1[1.1 Receive POST Request]
+        C2[1.2 Parse JSON Body]
+        C3[1.3 Route to CREATE Handler]
+        C4[1.4 Extract JWT Token]
+        C5[1.5 Validate Token]
+        C6[1.6 Check User Permissions]
+        C7[1.7 Validate Required Fields]
+        C8[1.8 Validate Data Types]
+        C9[1.9 Sanitize Input XSS]
+        C10[1.10 Validate Business Rules]
+        C11[1.11 Prepare SQL INSERT]
+        C12[1.12 Begin SQLite Transaction]
+        C13[1.13 Execute INSERT Query]
+        C14[1.14 Get Auto-Generated ID]
+        C15[1.15 Update Financial Position]
+        C16[1.16 Log to Audit Trail]
+        C17[1.17 Commit Transaction]
+        C18[1.18 Format Success Response]
+        C19[1.19 Return HTTP 201]
+        
+        C1 --> C2
+        C2 --> C3
+        C3 --> C4
+        C4 --> C5
+        C5 --> C6
+        C6 --> C7
+        C7 --> C8
+        C8 --> C9
+        C9 --> C10
+        C10 --> C11
+        C11 --> C12
+        C12 --> C13
+        C13 --> C14
+        C14 --> C15
+        C15 --> C16
+        C16 --> C17
+        C17 --> C18
+        C18 --> C19
+    end
+    
+    %% ============ READ OPERATION ============
+    subgraph READ["Process 2: READ Transactions"]
+        R1[2.1 Receive GET Request]
+        R2[2.2 Parse Query Parameters]
+        R3[2.3 Route to READ Handler]
+        R4[2.4 Extract JWT Token]
+        R5[2.5 Validate Token]
+        R6[2.6 Check User Authorization]
+        R7[2.7 Validate Query Params]
+        R8[2.8 Sanitize Filter Values]
+        R9[2.9 Build WHERE Clause]
+        R10[2.10 Apply Pagination Logic]
+        R11[2.11 Prepare SQL SELECT]
+        R12[2.12 Execute SELECT Query]
+        R13[2.13 Fetch Result Set]
+        R14[2.14 Count Total Records]
+        R15[2.15 Format JSON Response]
+        R16[2.16 Add Pagination Meta]
+        R17[2.17 Add HATEOAS Links]
+        R18[2.18 Log Access Audit]
+        R19[2.19 Return HTTP 200]
+        
+        R1 --> R2
+        R2 --> R3
+        R3 --> R4
+        R4 --> R5
+        R5 --> R6
+        R6 --> R7
+        R7 --> R8
+        R8 --> R9
+        R9 --> R10
+        R10 --> R11
+        R11 --> R12
+        R12 --> R13
+        R13 --> R14
+        R14 --> R15
+        R15 --> R16
+        R16 --> R17
+        R17 --> R18
+        R18 --> R19
+    end
+    
+    %% ============ UPDATE OPERATION ============
+    subgraph UPDATE["Process 3: UPDATE Transaction"]
+        U1[3.1 Receive PUT/PATCH Request]
+        U2[3.2 Extract Transaction ID]
+        U3[3.3 Parse Request Body]
+        U4[3.4 Route to UPDATE Handler]
+        U5[3.5 Extract JWT Token]
+        U6[3.6 Validate Token]
+        U7[3.7 Check Ownership]
+        U8[3.8 Validate Update Fields]
+        U9[3.9 Check Immutable Fields]
+        U10[3.10 Sanitize Input Values]
+        U11[3.11 Validate Business Rules]
+        U12[3.12 Read Current Record]
+        U13[3.13 Check Record Exists]
+        U14[3.14 Optimistic Lock Check]
+        U15[3.15 Prepare SQL UPDATE]
+        U16[3.16 Begin SQLite Transaction]
+        U17[3.17 Execute UPDATE Query]
+        U18[3.18 Check Rows Affected]
+        U19[3.19 Recalculate Position]
+        U20[3.20 Log Old and New Values]
+        U21[3.21 Commit Transaction]
+        U22[3.22 Format Response]
+        U23[3.23 Return HTTP 200]
+        
+        U1 --> U2
+        U2 --> U3
+        U3 --> U4
+        U4 --> U5
+        U5 --> U6
+        U6 --> U7
+        U7 --> U8
+        U8 --> U9
+        U9 --> U10
+        U10 --> U11
+        U11 --> U12
+        U12 --> U13
+        U13 --> U14
+        U14 --> U15
+        U15 --> U16
+        U16 --> U17
+        U17 --> U18
+        U18 --> U19
+        U19 --> U20
+        U20 --> U21
+        U21 --> U22
+        U22 --> U23
+    end
+    
+    %% ============ DELETE OPERATION ============
+    subgraph DELETE["Process 4: DELETE Transaction"]
+        D1[4.1 Receive DELETE Request]
+        D2[4.2 Extract Transaction ID]
+        D3[4.3 Route to DELETE Handler]
+        D4[4.4 Extract JWT Token]
+        D5[4.5 Validate Token]
+        D6[4.6 Check Delete Permission]
+        D7[4.7 Validate Transaction ID]
+        D8[4.8 Check Record Exists]
+        D9[4.9 Verify Ownership]
+        D10[4.10 Check Dependencies]
+        D11[4.11 Backup Record Data]
+        D12[4.12 Begin SQLite Transaction]
+        D13[4.13 Execute Soft DELETE]
+        D14[4.14 Mark as Deleted]
+        D15[4.15 Archive to Audit Log]
+        D16[4.16 Update Financial Position]
+        D17[4.17 Commit Transaction]
+        D18[4.18 Format Response]
+        D19[4.19 Return HTTP 204]
+        
+        D1 --> D2
+        D2 --> D3
+        D3 --> D4
+        D4 --> D5
+        D5 --> D6
+        D6 --> D7
+        D7 --> D8
+        D8 --> D9
+        D9 --> D10
+        D10 --> D11
+        D11 --> D12
+        D12 --> D13
+        D13 --> D14
+        D14 --> D15
+        D15 --> D16
+        D16 --> D17
+        D17 --> D18
+        D18 --> D19
+    end
+    
+    %% ============ ERROR HANDLING ============
+    subgraph ERROR["Process 5: Error Handling"]
+        E1[5.1 Catch Exception]
+        E2[5.2 Identify Error Type]
+        E3[5.3 Rollback Transaction]
+        E4[5.4 Log Error Details]
+        E5[5.5 Sanitize Error Message]
+        E6[5.6 Format Error Response]
+        E7[5.7 Set HTTP Status Code]
+        E8[5.8 Return Error Response]
+        
+        E1 --> E2
+        E2 --> E3
+        E3 --> E4
+        E4 --> E5
+        E5 --> E6
+        E6 --> E7
+        E7 --> E8
+    end
+    
+    %% ============ AUTHENTICATION ============
+    subgraph AUTH["Process 6: Authentication & Authorization"]
+        A1[6.1 Extract Auth Header]
+        A2[6.2 Parse Bearer Token]
+        A3[6.3 Verify JWT Signature]
+        A4[6.4 Check Token Expiry]
+        A5[6.5 Extract User Claims]
+        A6[6.6 Query User Record]
+        A7[6.7 Check User Status]
+        A8[6.8 Validate Permissions]
+        A9[6.9 Set Request Context]
+        
+        A1 --> A2
+        A2 --> A3
+        A3 --> A4
+        A4 --> A5
+        A5 --> A6
+        A6 --> A7
+        A7 --> A8
+        A8 --> A9
+    end
+    
+    %% ============ VALIDATION ============
+    subgraph VALIDATE["Process 7: Data Validation"]
+        V1[7.1 Check Required Fields]
+        V2[7.2 Validate Data Types]
+        V3[7.3 Check String Lengths]
+        V4[7.4 Validate Numeric Ranges]
+        V5[7.5 Validate Date Formats]
+        V6[7.6 Check Email Format]
+        V7[7.7 Sanitize SQL Injection]
+        V8[7.8 Prevent XSS Attacks]
+        V9[7.9 Validate Business Rules]
+        V10[7.10 Return Validation Result]
+        
+        V1 --> V2
+        V2 --> V3
+        V3 --> V4
+        V4 --> V5
+        V5 --> V6
+        V6 --> V7
+        V7 --> V8
+        V8 --> V9
+        V9 --> V10
+    end
+    
+    %% Client Connections
+    Client -->|POST /api/transactions| C1
+    Client -->|GET /api/transactions| R1
+    Client -->|PUT /api/transactions/:id| U1
+    Client -->|DELETE /api/transactions/:id| D1
+    
+    %% CREATE Data Flow
+    C5 -.->|Verify Token| DS5
+    C6 <-.->|Check Permissions| DS2
+    C13 -->|INSERT INTO| DS1
+    C15 -->|UPDATE| DS4
+    C16 -->|INSERT LOG| DS3
+    C19 -->|Response| Client
+    
+    %% READ Data Flow
+    R5 -.->|Verify Token| DS5
+    R6 <-.->|Check Auth| DS2
+    R12 -->|SELECT FROM| DS1
+    R14 -->|COUNT| DS1
+    R18 -->|INSERT LOG| DS3
+    R19 -->|Response| Client
+    
+    %% UPDATE Data Flow
+    U6 -.->|Verify Token| DS5
+    U7 <-.->|Check Owner| DS2
+    U12 <-.->|SELECT| DS1
+    U17 -->|UPDATE| DS1
+    U19 -->|UPDATE| DS4
+    U20 -->|INSERT LOG| DS3
+    U23 -->|Response| Client
+    
+    %% DELETE Data Flow
+    D5 -.->|Verify Token| DS5
+    D6 <-.->|Check Permission| DS2
+    D8 <-.->|SELECT| DS1
+    D13 -->|UPDATE deleted_at| DS1
+    D15 -->|INSERT ARCHIVE| DS3
+    D16 -->|UPDATE| DS4
+    D19 -->|Response| Client
+    
+    %% Error Connections
+    C7 -.->|Validation Fails| E1
+    C10 -.->|Business Rule Fails| E1
+    R7 -.->|Invalid Params| E1
+    U11 -.->|Validation Fails| E1
+    U13 -.->|Not Found| E1
+    D8 -.->|Not Found| E1
+    E4 -->|Log Error| DS3
+    E8 -->|Error Response| Client
+    
+    %% Auth Integration
+    C4 --> A1
+    R4 --> A1
+    U5 --> A1
+    D4 --> A1
+    A6 <-.->|Query User| DS2
+    A9 -.->|Context| C6
+    A9 -.->|Context| R6
+    A9 -.->|Context| U7
+    A9 -.->|Context| D6
+    
+    %% Validation Integration
+    C7 --> V1
+    R7 --> V1
+    U8 --> V1
+    D7 --> V1
+    V10 -.->|Valid| C11
+    V10 -.->|Valid| R11
+    V10 -.->|Valid| U15
+    V10 -.->|Valid| D11
+    V10 -.->|Invalid| E1
+    
+    %% Styling
+    classDef external fill:#e1f5ff,stroke:#0066cc,stroke-width:3px
+    classDef process fill:#fff4e6,stroke:#ff9800,stroke-width:2px
+    classDef datastore fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#f44336,stroke-width:2px
+    classDef auth fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef validate fill:#fff3e0,stroke:#ff6f00,stroke-width:2px
+    
+    class Client,BankAPI external
+    class C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19 process
+    class R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13,R14,R15,R16,R17,R18,R19 process
+    class U1,U2,U3,U4,U5,U6,U7,U8,U9,U10,U11,U12,U13,U14,U15,U16,U17,U18,U19,U20,U21,U22,U23 process
+    class D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D12,D13,D14,D15,D16,D17,D18,D19 process
+    class E1,E2,E3,E4,E5,E6,E7,E8 error
+    class A1,A2,A3,A4,A5,A6,A7,A8,A9 auth
+    class V1,V2,V3,V4,V5,V6,V7,V8,V9,V10 validate
+    class DS1,DS2,DS3,DS4,DS5 datastore
