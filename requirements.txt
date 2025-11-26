@@ -1,0 +1,21 @@
+# Production Requirements for PythonAnywhere
+alembic==1.17.1
+blinker==1.9.0
+click==8.3.0
+email-validator==2.1.0
+Flask==3.0.0
+Flask-Login==0.6.3
+Flask-Migrate==4.0.5
+Flask-SQLAlchemy==3.1.1
+Flask-WTF==1.2.1
+gunicorn==21.2.0
+itsdangerous==2.1.2
+Jinja2==3.1.2
+Mako==1.3.10
+MarkupSafe==3.0.3
+python-dotenv==1.0.0
+SQLAlchemy==2.0.44
+Werkzeug==3.0.1
+WTForms==3.0.1
+pymysql==1.1.1
+cryptography==41.0.7

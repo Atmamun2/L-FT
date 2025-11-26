@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Financial Ledger{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Take Control of Your Finances</h1>
+                <p class="lead mb-4">Track expenses, manage budgets, and achieve your financial goals with our intuitive financial management platform.</p>
+                <div class="d-grid gap-2 d-sm-flex">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-4 me-sm-3">Get Started</a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{{ url_for('static', filename='images/finance-dashboard.svg') }}" alt="Financial Dashboard" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Powerful Features</h2>
+            <p class="lead text-muted">Everything you need to manage your finances effectively</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 p-3 d-inline-block">
+                            <i class="bi bi-graph-up fs-1"></i>
+                        </div>
+                        <h3 class="h4">Expense Tracking</h3>
+                        <p class="text-muted">Easily record and categorize your daily expenses with our intuitive interface.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-gradient text-white rounded-3 mb-3 p-3 d-inline-block">
+                            <i class="bi bi-pie-chart fs-1"></i>
+                        </div>
+                        <h3 class="h4">Budget Management</h3>
+                        <p class="text-muted">Set and track budgets to keep your spending in check and save more.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-info bg-gradient text-white rounded-3 mb-3 p-3 d-inline-block">
+                            <i class="bi bi-file-earmark-bar-graph fs-1"></i>
+                        </div>
+                        <h3 class="h4">Detailed Reports</h3>
+                        <p class="text-muted">Generate comprehensive reports to analyze your spending habits and financial health.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">How It Works</h2>
+            <p class="lead text-muted">Get started in just a few simple steps</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center p-4">
+                    <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="h4 mb-0">1</span>
+                    </div>
+                    <h4 class="h5">Create an Account</h4>
+                    <p class="text-muted mb-0">Sign up for free and set up your profile in minutes.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center p-4">
+                    <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="h4 mb-0">2</span>
+                    </div>
+                    <h4 class="h5">Add Your Transactions</h4>
+                    <p class="text-muted mb-0">Start recording your income and expenses easily.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center p-4">
+                    <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="h4 mb-0">3</span>
+                    </div>
+                    <h4 class="h5">Gain Insights</h4>
+                    <p class="text-muted mb-0">Analyze your spending patterns and improve your financial health.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Ready to take control of your finances?</h2>
+        <p class="lead mb-4">Join thousands of users who are already managing their money smarter.</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-4">Get Started for Free</a>
+            <a href="#" class="btn btn-outline-light btn-lg px-4">Learn More</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

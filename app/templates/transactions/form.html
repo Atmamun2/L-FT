@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.id.data %}Edit{% else %}Add New{% endif %} Transaction - Financial Ledger{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{% if form.id.data %}Edit Transaction{% else %}Add New Transaction{% endif %}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="transactionForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="amount" class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" 
+                                       class="form-control {% if form.amount.errors %}is-invalid{% endif %}" 
+                                       id="amount" 
+                                       name="amount" 
+                                       step="0.01" 
+                                       min="0.01" 
+                                       value="{{ form.amount.data or '' }}" 
+                                       required>
+                                {% if form.amount.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.amount.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" 
+                                   class="form-control {% if form.date.errors %}is-invalid{% endif %}" 
+                                   id="date" 
+                                   name="date" 
+                                   value="{{ form.date.data.strftime('%Y-%m-%d') if form.date.data else '' }}" 
+                                   required>
+                            {% if form.date.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.date.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <input type="text" 
+                               class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                               id="description" 
+                               name="description" 
+                               placeholder="e.g., Grocery shopping, Salary, etc." 
+                               value="{{ form.description.data or '' }}">
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.description.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category</label>
+                            <div class="input-group">
+                                <select class="form-select {% if form.category.errors %}is-invalid{% endif %}" 
+                                        id="category" 
+                                        name="category" 
+                                        required>
+                                    <option value="" disabled {% if not form.category.data %}selected{% endif %}>Select a category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category }}" {% if form.category.data == category %}selected{% endif %}>
+                                            {{ category }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="addCategoryBtn">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                                {% if form.category.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.category.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="type" class="form-label">Type</label>
+                            <div class="btn-group w-100" role="group" id="typeToggle">
+                                <input type="radio" class="btn-check" name="type" id="expense" autocomplete="off" 
+                                       value="expense" {% if not form.id.data or form.amount.data|float < 0 %}checked{% endif %}>
+                                <label class="btn btn-outline-danger" for="expense">
+                                    <i class="bi bi-arrow-up-circle"></i> Expense
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="type" id="income" autocomplete="off" 
+                                       value="income" {% if form.id.data and form.amount.data|float >= 0 %}checked{% endif %}>
+                                <label class="btn btn-outline-success" for="income">
+                                    <i class="bi bi-arrow-down-circle"></i> Income
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="newCategoryGroup" style="display: none;">
+                        <label for="newCategory" class="form-label">New Category</label>
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="newCategory" 
+                                   placeholder="Enter new category name">
+                            <button class="btn btn-outline-success" type="button" id="saveCategoryBtn">
+                                <i class="bi bi-check"></i> Save
+                            </button>
+                            <button class="btn btn-outline-secondary" type="button" id="cancelCategoryBtn">
+                                <i class="bi bi-x"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('transactions.list_transactions') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> {% if form.id.data %}Update{% else %}Save{% endif %} Transaction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today if not set
+    if (!document.getElementById('date').value) {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+    }
+    
+    // Handle amount sign based on transaction type
+    const amountInput = document.getElementById('amount');
+    const expenseRadio = document.getElementById('expense');
+    const incomeRadio = document.getElementById('income');
+    
+    function updateAmountSign() {
+        let amount = parseFloat(amountInput.value);
+        if (isNaN(amount)) return;
+        
+        if (expenseRadio.checked && amount > 0) {
+            amountInput.value = -Math.abs(amount);
+        } else if (incomeRadio.checked && amount < 0) {
+            amountInput.value = Math.abs(amount);
+        }
+    }
+    
+    expenseRadio.addEventListener('change', updateAmountSign);
+    incomeRadio.addEventListener('change', updateAmountSign);
+    
+    // Handle adding new category
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    const newCategoryGroup = document.getElementById('newCategoryGroup');
+    const newCategoryInput = document.getElementById('newCategory');
+    const saveCategoryBtn = document.getElementById('saveCategoryBtn');
+    const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
+    const categorySelect = document.getElementById('category');
+    
+    addCategoryBtn.addEventListener('click', function() {
+        newCategoryGroup.style.display = 'block';
+        newCategoryInput.focus();
+    });
+    
+    cancelCategoryBtn.addEventListener('click', function() {
+        newCategoryGroup.style.display = 'none';
+        newCategoryInput.value = '';
+    });
+    
+    saveCategoryBtn.addEventListener('click', function() {
+        const newCategory = newCategoryInput.value.trim();
+        if (newCategory) {
+            // Add the new category to the select
+            const option = document.createElement('option');
+            option.value = newCategory;
+            option.textContent = newCategory;
+            option.selected = true;
+            
+            // Add before the last option (which is the "Select a category" option)
+            categorySelect.insertBefore(option, categorySelect.lastElementChild);
+            
+            // Reset and hide the new category input
+            newCategoryInput.value = '';
+            newCategoryGroup.style.display = 'none';
+            
+            // Show success message
+            alert('Category added successfully!');
+        }
+    });
+    
+    // Allow pressing Enter to save the new category
+    newCategoryInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveCategoryBtn.click();
+        }
+    });
+    
+    // Form validation
+    const form = document.getElementById('transactionForm');
+    form.addEventListener('submit', function(e) {
+        // Ensure amount is properly signed before submission
+        updateAmountSign();
+        
+        // Additional validation can be added here
+        const amount = parseFloat(amountInput.value);
+        if (isNaN(amount) || amount === 0) {
+            e.preventDefault();
+            alert('Please enter a valid amount');
+            amountInput.focus();
+            return false;
+        }
+        
+        return true;
+    });
+});
+</script>
+{% endblock %}
