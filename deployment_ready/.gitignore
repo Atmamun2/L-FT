@@ -1,0 +1,97 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Database
+*.sqlite
+*.db
+
+# Logs
+logs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Production
+instance/
+
+# Local development
+.python-version
+
+# Node modules (if any)
+node_modules/
+
+# Build directories
+build/
+staticfiles/
+
+# Media files
+media/
+
+# Local development
+*.local
+
+# Flask
+instance/
+.webassets-cache
+
+# dotenv
+.env
+
+# virtualenv
+.venv
+
+# mypy
+.mypy_cache/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Local development
+*.sqlite3
+
+# Environment files
+.env
+!.env.example

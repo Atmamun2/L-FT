@@ -1,0 +1,20 @@
+[build]
+  command = "pip install -r requirements.txt"
+  publish = "."
+
+[build.environment]
+  PYTHON_VERSION = "3.9"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[functions]
+  directory = "functions"
+  node_bundler = "esbuild"
+
+[dev]
+  command = "gunicorn --bind 0.0.0.0:$PORT wsgi:application"
+  targetPort = 8000
+  publish = "."

@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: loft-app
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: FLASK_APP
+        value: "wsgi.py"
+      - key: FLASK_ENV
+        value: "production"
+    plan: free
